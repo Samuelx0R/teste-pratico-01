@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Award, FileBarChart, Home, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { motion, Transition } from 'framer-motion';
 
 import { BrandLogo } from '@/components/BrandLogo';
 
@@ -14,18 +15,47 @@ const NAV_ITEMS = [
   { to: '/certificado', label: 'Certificado', icon: Award, testId: 'nav-certificado', end: false },
 ] as const;
 
-/** Barra lateral de navegacao com estado recolhido/expandido. */
+// Transition configurada conforme solicitado: suave, natural, contínua
+const transition: Transition = {
+  type: 'tween',
+  ease: [0.22, 1, 0.36, 1],
+  duration: 0.35,
+};
+
+const sidebarVariants = {
+  expanded: { width: 244 },
+  collapsed: { width: 76 }
+};
+
+const labelVariants = {
+  expanded: {
+    opacity: 1,
+    maxWidth: 160,
+    marginLeft: 12,
+  },
+  collapsed: {
+    opacity: 0,
+    maxWidth: 0,
+    marginLeft: 0,
+  },
+};
+
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
-    <aside
-      className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}
+    <motion.aside
+      className="sidebar"
       data-testid="sidebar"
       data-collapsed={collapsed}
+      initial={false}
+      animate={collapsed ? "collapsed" : "expanded"}
+      variants={sidebarVariants}
+      transition={transition}
+      style={{ overflowX: 'hidden' }}
     >
       <div className="sidebar__brand">
-        <BrandLogo collapsed={collapsed} />
+        <BrandLogo collapsed={collapsed} transition={transition} />
       </div>
 
       <nav className="sidebar__nav" aria-label="Navegacao principal">
@@ -39,7 +69,16 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             className={({ isActive }) => `sidebar__link${isActive ? ' sidebar__link--active' : ''}`}
           >
             <Icon className="sidebar__link-icon" size={20} aria-hidden="true" />
-            <span className="sidebar__link-label">{label}</span>
+            <motion.span
+              className="sidebar__link-label"
+              initial={false}
+              animate={collapsed ? "collapsed" : "expanded"}
+              variants={labelVariants}
+              transition={transition}
+              style={{ display: 'inline-block', overflow: 'hidden', whiteSpace: 'nowrap' }}
+            >
+              {label}
+            </motion.span>
           </NavLink>
         ))}
       </nav>
@@ -53,9 +92,18 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         aria-controls="sidebar"
         aria-label={collapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
       >
-        <ToggleIcon size={20} aria-hidden="true" />
-        <span className="sidebar__link-label">Recolher</span>
+        <ToggleIcon className="sidebar__link-icon" size={20} aria-hidden="true" />
+        <motion.span
+          className="sidebar__link-label"
+          initial={false}
+          animate={collapsed ? "collapsed" : "expanded"}
+          variants={labelVariants}
+          transition={transition}
+          style={{ display: 'inline-block', overflow: 'hidden', whiteSpace: 'nowrap' }}
+        >
+          Recolher
+        </motion.span>
       </button>
-    </aside>
+    </motion.aside>
   );
 }
